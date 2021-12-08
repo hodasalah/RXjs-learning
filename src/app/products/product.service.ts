@@ -12,11 +12,11 @@ import { SupplierService } from '../suppliers/supplier.service';
   providedIn: 'root'
 })
 export class ProductService {
-  private productsUrl = 'api/products';
+  private productsUrl = 'api/product';
   private suppliersUrl = this.supplierService.suppliersUrl;
 
   constructor(private http: HttpClient,
-              private supplierService: SupplierService) { }
+    private supplierService: SupplierService) { }
 
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.productsUrl)

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { EMPTY, Observable, of, Subscription } from 'rxjs';
 
@@ -8,7 +8,9 @@ import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'pm-product-list',
-  templateUrl: './product-list-alt.component.html'
+  templateUrl: './product-list-alt.component.html',
+  //changeDetection component won't update unless we emit an item
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductListAltComponent implements OnInit {
   pageTitle = 'Products';
