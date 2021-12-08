@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Observable, Subscription } from 'rxjs';
+import { EMPTY, Observable, of, Subscription } from 'rxjs';
 
 import { Product } from '../product';
 import { ProductService } from '../product.service';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'pm-product-list',
@@ -14,13 +15,17 @@ export class ProductListAltComponent implements OnInit {
   errorMessage = '';
   selectedProductId: number;
 
-  products$!: Observable<Product[]> ;
+  products$!: Observable<Product[]>;
   sub: Subscription;
 
   constructor(private productService: ProductService) { }
 
   ngOnInit(): void {
-    this.products$ = this.productService.getProducts()
+    this.products$ = this.productService.getProducts().pipe(catchError(err => {
+      this.errorMessage = err;
+      // return of([])=== EMPTY
+      return EMPTY
+    }))
 
   }
 
