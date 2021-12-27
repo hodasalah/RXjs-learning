@@ -1,41 +1,58 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { Subscription } from 'rxjs';
+import { EMPTY, combineLatest, Subject } from 'rxjs';
 
 import { Product } from './product';
 import { ProductService } from './product.service';
+import { catchError, map, startWith } from 'rxjs/operators';
+import { ProductCategoryService } from '../product-categories/product-category.service';
 
 @Component({
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent implements OnInit, OnDestroy {
+export class ProductListComponent {
   pageTitle = 'Product List';
   errorMessage = '';
-  categories;
 
-  products: Product[] = [];
-  sub: Subscription;
+  //selectedCategoryId = 1;
 
-  constructor(private productService: ProductService) { }
+  products$ = this.productService.productsWithCategories$.pipe(catchError((err) => {
+    this.errorMessage = err;
+    return EMPTY;
+  }));
+  private categorySelectedSubject = new Subject<number>();
+  categorySelectedAction$ = this.categorySelectedSubject.asObservable();
 
-  ngOnInit(): void {
-    this.sub = this.productService.getProducts()
-      .subscribe(
-        products => this.products = products,
-        error => this.errorMessage = error
-      );
-  }
+  productsWithAction$ = combineLatest([this.products$, this.categorySelectedAction$.pipe(startWith(0))])
+    .pipe(
+      map(([products$, selectedCategoryId]) => products$.filter(p => selectedCategoryId ? p.categoryId === selectedCategoryId : true)),
+      catchError(err => {
+        this.errorMessage = err;
+        return EMPTY
+      })
+    )
+  categories$ = this.productCategoryService.productCategories$.pipe(catchError(err => {
+    this.errorMessage = err;
+    return EMPTY
+  }))
 
-  ngOnDestroy(): void {
-    this.sub.unsubscribe();
-  }
+  // using normal filter array method to filter products
+  // productsSimpleFilter$ = this.productService.productsWithCategories$.pipe(map(products => products.filter(p => this.selectedCategoryId ? p.categoryId === this.selectedCategoryId : true)))
+
+
+  constructor(private productService: ProductService, private productCategoryService: ProductCategoryService) { }
+
+
+
+
 
   onAdd(): void {
     console.log('Not yet implemented');
   }
 
   onSelected(categoryId: string): void {
-    console.log('Not yet implemented');
+    // this.selectedCategoryId = +categoryId
+    this.categorySelectedSubject.next(+categoryId)
   }
 }

@@ -12,24 +12,22 @@ import { catchError } from 'rxjs/operators';
   //changeDetection component won't update unless we emit an item
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductListAltComponent implements OnInit {
+export class ProductListAltComponent {
   pageTitle = 'Products';
   errorMessage = '';
   selectedProductId: number;
 
-  products$!: Observable<Product[]>;
-  sub: Subscription;
+  products$ = this.productService.productsWithCategories$.pipe(catchError(err => {
+    this.errorMessage = err;
+    // return of([])=== EMPTY
+    return EMPTY
+  }))
+
+
 
   constructor(private productService: ProductService) { }
 
-  ngOnInit(): void {
-    this.products$ = this.productService.getProducts().pipe(catchError(err => {
-      this.errorMessage = err;
-      // return of([])=== EMPTY
-      return EMPTY
-    }))
 
-  }
 
 
 
