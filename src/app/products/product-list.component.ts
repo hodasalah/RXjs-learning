@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { EMPTY, combineLatest, Subject } from 'rxjs';
 
@@ -9,7 +9,8 @@ import { ProductCategoryService } from '../product-categories/product-category.s
 
 @Component({
   templateUrl: './product-list.component.html',
-  styleUrls: ['./product-list.component.css']
+  styleUrls: ['./product-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductListComponent {
   pageTitle = 'Product List';
@@ -17,7 +18,7 @@ export class ProductListComponent {
 
   //selectedCategoryId = 1;
 
-  products$ = this.productService.productsWithCategories$.pipe(catchError((err) => {
+  products$ = this.productService.addProductAndMergeWithProducts.pipe(catchError((err) => {
     this.errorMessage = err;
     return EMPTY;
   }));
@@ -48,7 +49,7 @@ export class ProductListComponent {
 
 
   onAdd(): void {
-    console.log('Not yet implemented');
+    this.productService.addProduct()
   }
 
   onSelected(categoryId: string): void {
